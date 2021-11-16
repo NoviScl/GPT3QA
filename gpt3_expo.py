@@ -1,4 +1,3 @@
-import enum
 import os
 import openai
 import json
@@ -6,7 +5,7 @@ from tqdm import tqdm
 from nltk.tokenize import sent_tokenize
 from evaluate import * 
 
-engine = 'davinci-msft'
+engine = 'davinci'
 openai.api_key = '' ## fill in your key and adjust the GPT-3 version that you wanna use
 openai.Engine.retrieve(engine)
 
