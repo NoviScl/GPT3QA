@@ -8,12 +8,7 @@ from evaluate import *
 import numpy as np
 np.random.seed(2021)
 
-# engine = 'davinci-msft'
-# # openai.api_key = '' ## fill in your key and adjust the GPT-3 version that you wanna use
-# openai.api_key = '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'
-# openai.Engine.retrieve(engine)
-
-openai.api_key = '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'
+openai.api_key = ''
 openai.Engine.retrieve('davinci-msft')
 
 def load_data(train_path, test_path):
