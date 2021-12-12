@@ -1,34 +1,56 @@
+import enum
 import os
 import openai
 import json
 from tqdm import tqdm
 from nltk.tokenize import sent_tokenize
 from evaluate import * 
+import numpy as np
+np.random.seed(2021)
 
-engine = 'davinci'
-openai.api_key = '' ## fill in your key and adjust the GPT-3 version that you wanna use
-openai.Engine.retrieve(engine)
+# engine = 'davinci-msft'
+# # openai.api_key = '' ## fill in your key and adjust the GPT-3 version that you wanna use
+# openai.api_key = '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'
+# openai.Engine.retrieve(engine)
 
-## randomly sampled train examples to serve as prompts
-with open('train_10.json', 'r') as f:
-  train = json.load(f)
+openai.api_key = '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'
+openai.Engine.retrieve('davinci-msft')
 
-## randomly sampled test set for evaluation
-with open('test_100.json', 'r') as f:
-  test_100 = json.load(f)
+def load_data(train_path, test_path):
+	'''
+	load train and test data
+	'''
+	with open(train_path, 'r') as f:
+		train = json.load(f)
 
-def quizbowl_prompt(num_demo=4):
+	with open(test_path, 'r') as f:
+		test = json.load(f)
+	
+	return train, test
+	
+def select_demo(data, num_demo=4):
+	'''
+	Select k demo examples from the training data.
+	'''
+	# random sample
+	return np.random.choice(data, num_demo)
+
+
+def qa_prompt(train, num_demo=4):
+	'''
+	Construct the prompt for QA task.
+	'''
+	selected_demos = select_demo(train, num_demo)
 	prompt = ''
 	for i in range(num_demo):
-		prompt += train[i]["text"] + '\n'
-		answer = train[i]["answer"]
-		answer = answer.split('[')[0].strip()
+		prompt += selected_demos[i]["question"] + '\n'
+		answer = selected_demos[i]["answer"]
 		prompt += "The answer is " + answer + "\n\n"
 	return prompt
 
 
-def predict(question, threshold=100):
-	prompt = quizbowl_prompt(4)
+def predict(question, num_demo=4):
+	prompt = qa_prompt()
 	input_prompt = prompt + question + '\n'
 	input_prompt += "The answer is"
 	aa = openai.Completion.create(
@@ -110,8 +132,9 @@ def quizbowl_test(samples=100, threshold=100):
 
 
 if __name__ == "__main__":
-	for threshold in [90, 100, 110]:
-		print ("buzz threshold: ", threshold)
-		answers = quizbowl_test(100, threshold=threshold)
+	# for threshold in [90, 100, 110]:
+	# 	print ("buzz threshold: ", threshold)
+	# 	answers = quizbowl_test(100, threshold=threshold)
+	train, test = load_data('DiverseQA/NQ_train.json', 'DiverseQA/NQ_test.json')
 
 
